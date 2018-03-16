@@ -27,12 +27,27 @@ router.get('/', function(req, res) {
   res.send('Welcome to our API.');
 });
 
-router.get('/volumes', function(req, res) {
+// return all volumes raw
+router.get('/raw-volumes', function(req, res) {
   getHddSpace(function (spaceInfo) {
     res.send(spaceInfo);
   });
 })
 
+router.get('/volumes', function(req, res) {
+  var volRex = RegExp('^\/Volumes\/');
+  getHddSpace(function (spaceInfo) {
+    var resultArr = [];
+    spaceInfo.parts.forEach(function(element) {
+      if (volRex.test(element.mountOn)) {
+        resultArr.push(element);
+      }
+    });
+    res.send(resultArr);
+  });
+})
+
+// return the specified volume obj.
 router.get('/volumes/:volume', function(req, res) {
   var volume = req.params.volume;
   getHddSpace(function (spaceInfo) {
