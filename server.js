@@ -3,7 +3,6 @@ var app = express();
 var _ = require('lodash');
 
 var hddSpace = require('hdd-space');
-//import hddSpace from 'hdd-space';
 
 var port = process.env.PORT || 8080;
 
@@ -41,6 +40,19 @@ router.get('/volumes', function(req, res) {
     spaceInfo.parts.forEach(function(element) {
       if (volRex.test(element.mountOn)) {
         resultArr.push(element);
+      }
+    });
+    res.send(resultArr);
+  });
+})
+
+router.get('/list-volumes', function(req, res) {
+  var volRex = RegExp('^\/Volumes\/');
+  getHddSpace(function (spaceInfo) {
+    var resultArr = [];
+    spaceInfo.parts.forEach(function(element) {
+      if (volRex.test(element.mountOn)) {
+        resultArr.push(element.mountOn);
       }
     });
     res.send(resultArr);
