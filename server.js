@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var _ = require('lodash');
+var cors = require('cors');
 
 var hddSpace = require('hdd-space');
 
@@ -17,6 +18,8 @@ function getHddSpace(cb) {
 // /api/volumes/:volume         specific volume
 
 var router = express.Router();
+
+app.use(cors());
 
 app.get('/', function(req, res) {
   res.send('API access: use /api/volumes');
