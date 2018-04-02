@@ -37,29 +37,37 @@ router.get('/raw-volumes', function(req, res) {
 })
 
 router.get('/volumes', function(req, res) {
-  var volRex = RegExp('^\/Volumes\/');
-  getHddSpace(function (spaceInfo) {
-    var resultArr = [];
-    spaceInfo.parts.forEach(function(element) {
-      if (volRex.test(element.mountOn)) {
-        resultArr.push(element);
-      }
+  if (process.platform === 'darwin') {
+    var volRex = RegExp('^\/Volumes\/');
+    getHddSpace(function (spaceInfo) {
+      var resultArr = [];
+      spaceInfo.parts.forEach(function(element) {
+        if (volRex.test(element.mountOn)) {
+          resultArr.push(element);
+        }
+      });
+      res.send(resultArr);
     });
-    res.send(resultArr);
-  });
+  } else {
+    res.redirect('/api/raw-volumes');
+  }
 })
 
 router.get('/list-volumes', function(req, res) {
-  var volRex = RegExp('^\/Volumes\/');
-  getHddSpace(function (spaceInfo) {
-    var resultArr = [];
-    spaceInfo.parts.forEach(function(element) {
-      if (volRex.test(element.mountOn)) {
-        resultArr.push(element.mountOn);
-      }
+  if (process.platform === 'darwin') {
+    var volRex = RegExp('^\/Volumes\/');
+    getHddSpace(function (spaceInfo) {
+      var resultArr = [];
+      spaceInfo.parts.forEach(function(element) {
+        if (volRex.test(element.mountOn)) {
+          resultArr.push(element.mountOn);
+        }
+      });
+      res.send(resultArr);
     });
-    res.send(resultArr);
-  });
+  } else {
+    res.redirect('/api/raw-volumes');
+  }
 })
 
 // return the specified volume obj.
