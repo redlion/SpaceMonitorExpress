@@ -70,6 +70,35 @@ router.get('/list-volumes', function(req, res) {
   }
 })
 
+// return multiple volumes query.
+// EX: http://localhost:8080/api/volumes/multiple?volumes=Engineering1,Engineering2
+router.get('/volumes/multiple', function(req, res) {
+  //console.log(req.query.volumes.split(','));
+  var responseJSON = {
+    "volumes": []
+  };
+  var volArr = req.query.volumes.split(',');
+  getHddSpace(function (spaceInfo) {
+    var allInfo = spaceInfo.parts.slice();
+
+    volArr.forEach(function (volume) {
+      var matchObj = _.find(allInfo, function(volumeObj) {
+        return _.last(volumeObj.mountOn.split('/')) === volume;
+      });
+      console.log(matchObj);
+      if (matchObj != undefined) {
+        responseJSON["volumes"].push(matchObj);
+      }
+    });
+
+    if (responseJSON["volumes"].length > 0) {
+      res.send(responseJSON);
+    } else {
+      res.send('volumes ' + volArr + ' were not found.');
+    }
+  });
+});
+
 // return the specified volume obj.
 router.get('/volumes/:volume', function(req, res) {
   var volume = req.params.volume;
