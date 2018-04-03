@@ -102,10 +102,17 @@ router.get('/volumes/multiple', function(req, res) {
 // return the specified volume obj.
 router.get('/volumes/:volume', function(req, res) {
   var volume = req.params.volume;
+  if (volume === "root") {
+    volume = "/";
+  }
   getHddSpace(function (spaceInfo) {
     var allInfo = spaceInfo.parts;
     var matchedObj = _.find(allInfo, function(volumeObj) {
-      return _.last(volumeObj.mountOn.split('/')) === volume;
+      if (volume === "/") {
+        return volumeObj.mountOn === volume;
+      } else {
+        return _.last(volumeObj.mountOn.split('/')) === volume;
+      }
     });
     if(matchedObj) {
       res.send(matchedObj);
