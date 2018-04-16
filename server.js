@@ -7,6 +7,8 @@ var hddSpace = require('hdd-space');
 
 var port = process.env.PORT || 8080;
 
+var cache = require('memory-cache');
+
 function getHddSpace(cb) {
   hddSpace({format: 'gb'}, function(info){
     cb(info);
@@ -18,6 +20,26 @@ function getHddSpace(cb) {
 // /api/volumes/:volume         specific volume
 
 var router = express.Router();
+
+// configure cache middleware
+let memCache = new cache.Cache();
+let cacheMiddleware = (duration) => {
+  return (req, res, next) => {
+    let key = '__express__' + req.originalUrl | req.url;
+    let cacheContent = memCache.get(key);
+    if (cacheContent) {
+      res.send(JSON.parse(cacheContent));
+      return
+    } else {
+      res.sendResponse = res.send;
+      res.send = (body) => {
+        memCache.put(key, body, duration*1000);
+        res.sendResponse(body);
+      }
+      next();
+    }
+  }
+}
 
 app.use(cors());
 
@@ -100,7 +122,7 @@ router.get('/volumes/multiple', function(req, res) {
 });
 
 // return the specified volume obj.
-router.get('/volumes/:volume', function(req, res) {
+router.get('/volumes/:volume', cacheMiddleware(30), function(req, res) {
   var volume = req.params.volume;
   if (volume === "root") {
     volume = "/";
