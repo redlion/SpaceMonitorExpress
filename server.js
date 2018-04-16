@@ -94,7 +94,7 @@ router.get('/list-volumes', function(req, res) {
 
 // return multiple volumes query.
 // EX: http://localhost:8080/api/volumes/multiple?volumes=Engineering1,Engineering2
-router.get('/volumes/multiple', function(req, res) {
+router.get('/volumes/multiple', cacheMiddleware(30), function(req, res) {
   //console.log(req.query.volumes.split(','));
   var responseJSON = {
     "volumes": []
